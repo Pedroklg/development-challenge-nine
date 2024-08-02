@@ -1,19 +1,21 @@
 import './App.css';
-import { Routers, Route } from 'react-router-dom';
-import { Home } from './pages/Home';
-import { PatientForm } from './pages/PatientForm';
-import { PatientList } from './pages/PatientList';
+import { Route, Routes } from 'react-router-dom';
+import NavBar from './components/NavBar';
+import Home from './pages/Home';
+import PatienstForm from './pages/PatientsForm';
+import Patients from './pages/Patients';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <Routers>
-          <Route path="/" component={Home} />
-          <Route path="/patient-form" component={PatientForm} />
-          <Route path="/patient-list" component={PatientList} />
-        </Routers>
-      </header>
+      <NavBar />
+      <div className='ml-32'>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/patients" element={<Patients />} />
+          <Route path="/patientForm" element={<PatienstForm />} />
+        </Routes>
+      </div>
     </div>
   );
 }
