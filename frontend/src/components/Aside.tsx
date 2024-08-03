@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Drawer, List, ListItem, ListItemText, IconButton, Box, useMediaQuery, Theme, Toolbar, AppBar, CssBaseline, Typography } from '@mui/material';
+import HomeIcon from '@mui/icons-material/Home';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import MenuIcon from '@mui/icons-material/Menu';
+import CreateIcon from '@mui/icons-material/Create';
 import CloseIcon from '@mui/icons-material/Close';
-import { useTheme } from '@mui/material/styles';
 import { palette } from '../theme';
 
 const { medDarkCyan } = palette;
@@ -11,7 +13,6 @@ const { medDarkCyan } = palette;
 const drawerWidth = 240;
 
 const Aside: React.FC = () => {
-  const theme = useTheme();
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
   const [isOpen, setIsOpen] = useState(!isMobile);
 
@@ -21,19 +22,27 @@ const Aside: React.FC = () => {
 
   const list = () => (
     <Box
-      sx={{ width: drawerWidth, mt: "4rem" }}
-      role="presentation"
+      sx={{ width: drawerWidth }}
+      role="navigation"
       onClick={isMobile ? toggleDrawer : undefined}
       onKeyDown={isMobile ? toggleDrawer : undefined}
     >
+
+      <Typography component={Link} to={"/"}>
+        <img src="logoMedcloud.svg" alt="Medcloud" className='h-20 p-4 mb-5' />
+      </Typography>
+
       <List>
         <ListItem component={Link} to="/">
+          <HomeIcon />
           <ListItemText primary="Home" />
         </ListItem>
         <ListItem component={Link} to="/patients">
+          <FormatListBulletedIcon />
           <ListItemText primary="Patient List" />
         </ListItem>
         <ListItem component={Link} to="/patients/new">
+          <CreateIcon />
           <ListItemText primary="Patient Form" />
         </ListItem>
       </List>
@@ -43,22 +52,18 @@ const Aside: React.FC = () => {
   return (
     <div className='flex'>
       <CssBaseline />
-      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
+      <AppBar position="fixed">
         <Toolbar>
           {isMobile && (
             <IconButton
-              color="inherit"
               aria-label="open drawer"
               onClick={toggleDrawer}
               edge="start"
-              sx={{ mr: 2 }}
+              sx={{ color: 'white' }}
             >
               <MenuIcon />
             </IconButton>
           )}
-          <Typography variant="h6" noWrap>
-            My Application
-          </Typography>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -68,7 +73,8 @@ const Aside: React.FC = () => {
         sx={{
           width: drawerWidth,
           flexShrink: 0,
-          [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+          [`& .MuiDrawer-paper`]:
+            { width: drawerWidth, boxSizing: 'border-box', bgcolor: 'white', overflow: 'hidden', color: medDarkCyan },
         }}
       >
         {isMobile && (
