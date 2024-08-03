@@ -1,5 +1,5 @@
 import db from '../db/db.js';
-import { patientPostSchema, patientUpdateSchema } from '../models/patient.js';
+import patientModel from '../models/patientModel.js';
 
 export const getPatients = async (req, res) => {
     try {
@@ -26,16 +26,17 @@ export const getPatientById = async (req, res) => {
 };
 
 export const createPatient = async (req, res) => {
-    const { error, value } = patientPostSchema.validate(req.body);
+    console.log(req.body);
+    const { error, value } = patientModel.validate(req.body);
     if (error) {
         return res.status(400).json({ error: error.details[0].message });
     }
 
-    const { name, birthDate, email, address } = value;
+    const { name, birth_date, email, address } = value;
     try {
         const patient = await db.query(
             'INSERT INTO patients (name, birth_date, email, address) VALUES ($1, $2, $3, $4) RETURNING *', 
-            [name, birthDate, email, address]
+            [name, birth_date, email, address]
         );
         res.status(201).json(patient.rows[0]);
     } catch (error) {
@@ -46,20 +47,20 @@ export const createPatient = async (req, res) => {
 
 export const updatePatient = async (req, res) => {
     const { id } = req.params;
-    const { error, value } = patientUpdateSchema.validate({ id, ...req.body });
+    const { error, value } = patientModel.validate(req.body);
     if (error) {
         return res.status(400).json({ error: error.details[0].message });
     }
 
-    const { name, birthDate, email, address } = value;
-    if (!name && !birthDate && !email && !address) {
+    const { name, birth_date, email, address } = value;
+    if (!name && !birth_date && !email && !address) {
         return res.status(400).json({ error: 'At least one field must be updated' });
     }
 
     try {
         const patient = await db.query(
             'UPDATE patients SET name = $1, birth_date = $2, email = $3, address = $4 WHERE id = $5 RETURNING *',
-            [name, birthDate, email, address, id]
+            [name, birth_date, email, address, id]
         );
         if (patient.rows.length === 0) {
             return res.status(404).json({ error: 'Patient not found' });

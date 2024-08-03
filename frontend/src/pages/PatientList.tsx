@@ -18,7 +18,7 @@ const PatientList: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/patients')
+    axios.get('http://localhost:5000/patients')
       .then(response => setPatients(response.data))
       .catch(error => console.error('Error fetching data:', error));
   }, []);

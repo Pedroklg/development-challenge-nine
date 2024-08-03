@@ -13,12 +13,12 @@ interface Patient {
 
 const PatientForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [patient, setPatient] = useState<Patient>({ name: '', birth_date: '', email: '', address: '' });
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (id) {
-      axios.get(`http://localhost:5000/api/patients/${id}`)
+    if (id !== 'new') {
+      axios.get(`http://localhost:5000/patients/${id}`)
         .then(response => setPatient(response.data))
         .catch(error => console.error('Error fetching patient data:', error));
     }
@@ -31,14 +31,36 @@ const PatientForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (id) {
-      axios.put(`http://localhost:5000/api/patients/${id}`, patient)
-        .then(() => navigate('/patients'))
-        .catch(error => console.error('Error updating patient:', error));
+    const patientData = {
+      id: patient.id ?? undefined,
+      name: patient.name,
+      birth_date: patient.birth_date,
+      email: patient.email,
+      address: patient.address,
+    };
+
+    if (id && id !== 'new') {
+      updatePatient(patientData);
     } else {
-      axios.post('http://localhost:5000/api/patients', patient)
-        .then(() => navigate('/patients'))
-        .catch(error => console.error('Error creating patient:', error));
+      createPatient(patientData);
+    }
+  };
+
+  async function createPatient(patientData: Patient) {
+    try {
+      await axios.post('http://localhost:5000/patients', patientData);
+      navigate('/patients');
+    } catch (error) {
+      console.error('Error creating patient:', error);
+    }
+  };
+
+  async function updatePatient(patientData: Patient) {
+    try {
+      await axios.put(`http://localhost:5000/patients/${id}`, patientData);
+      navigate('/patients');
+    } catch (error) {
+      console.error('Error updating patient:', error);
     }
   };
 
