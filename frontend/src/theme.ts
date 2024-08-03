@@ -1,16 +1,21 @@
 import { createTheme } from '@mui/material/styles';
 
+const palette = {
+  medBlue: "#215889",
+  medDarkCyan: "#174772"
+}
+
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
+      main: palette.medDarkCyan,
     },
     secondary: {
-      main: '#dc004e',
+      main: palette.medBlue,
     },
     background: {
-      default: '#f5f5f5',
-    },
+      default: '#fff',
+    }
   },
   typography: {
     fontFamily: 'Roboto, Arial, sans-serif',
@@ -34,5 +39,4 @@ const theme = createTheme({
 });
 
 export default theme;
-
-//  #215889
+export { palette };
