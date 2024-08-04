@@ -2,14 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
-interface Patient {
-  id: number;
-  name: string;
-  birth_date: string;
-  email: string;
-  address: string;
-}
+import Patient from '../types/patientsTypes';
 
 const PatientList: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -18,12 +11,19 @@ const PatientList: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:5000/patients')
-      .then(response => setPatients(response.data))
-      .catch(error => console.error('Error fetching data:', error));
+    const fetchPatients = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/patients');
+        setPatients(response.data);
+      } catch (error) {
+        console.error('Error fetching patients:', error);
+      }
+    };
+
+    fetchPatients();
   }, []);
 
-  const handleChangePage = (_event: unknown, newPage: number) => {
+  const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
   };
 
@@ -35,6 +35,16 @@ const PatientList: React.FC = () => {
   const handleEditClick = (id: number) => {
     navigate(`/patients/${id}`);
   };
+
+  const handleDeleteClick = async (id: number) => {
+    alert('Are you sure you want to delete this patient?');
+    try {
+      await axios.delete(`http://localhost:5000/patients/${id}`);
+      setPatients((prevPatients) => prevPatients.filter((patient) => patient.id !== id));
+    } catch (error) {
+      console.error('Error deleting patient:', error);
+    }
+  }
 
   const displayedPatients = patients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -48,7 +58,8 @@ const PatientList: React.FC = () => {
               <TableCell className="bg-gray-200">Name</TableCell>
               <TableCell className="bg-gray-200">Birth Date</TableCell>
               <TableCell className="bg-gray-200">Email</TableCell>
-              <TableCell className="bg-gray-200">Address</TableCell>
+              <TableCell className="bg-gray-200">Estado</TableCell>
+              <TableCell className="bg-gray-200">Cidade</TableCell>
               <TableCell className="bg-gray-200">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -58,10 +69,14 @@ const PatientList: React.FC = () => {
                 <TableCell>{patient.name}</TableCell>
                 <TableCell>{new Date(patient.birth_date).toLocaleDateString()}</TableCell>
                 <TableCell>{patient.email}</TableCell>
-                <TableCell>{patient.address}</TableCell>
+                <TableCell>{patient.estado}</TableCell>
+                <TableCell>{patient.cidade}</TableCell>
                 <TableCell>
                   <Button variant="contained" color="primary" onClick={() => handleEditClick(patient.id)}>
                     Edit
+                  </Button>
+                  <Button variant="contained" color="secondary" onClick={() => handleDeleteClick(patient.id)}>
+                    Delete
                   </Button>
                 </TableCell>
               </TableRow>

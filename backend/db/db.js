@@ -8,25 +8,40 @@ const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
 });
 
-const createTable = async () => {
-    const query = `
+const createTables = async () => {
+    const addressQuery = `
+        CREATE TABLE IF NOT EXISTS addresses (
+            id SERIAL PRIMARY KEY,
+            cep VARCHAR(8) NOT NULL,
+            estado VARCHAR(50) NOT NULL,
+            cidade VARCHAR(100) NOT NULL,
+            bairro VARCHAR(100) NOT NULL,
+            rua VARCHAR(255) NOT NULL,
+            numero VARCHAR(10) NOT NULL,
+            complemento VARCHAR(255)
+        );
+    `;
+
+    const patientsQuery = `
         CREATE TABLE IF NOT EXISTS patients (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
             birth_date DATE NOT NULL,
             email VARCHAR(100) NOT NULL UNIQUE,
-            address TEXT NOT NULL
+            address_id INTEGER REFERENCES addresses(id)
         );
     `;
+
     try {
-        await pool.query(query);
-        console.log('Table created or already exists');
+        await pool.query(addressQuery);
+        await pool.query(patientsQuery);
+        console.log('Tables created or already exist');
     } catch (error) {
-        console.error('Error creating table:', error);
+        console.error('Error creating tables:', error);
     }
 };
 
-createTable();
+createTables();
 
 const query = async (text, params) => {
     const client = await pool.connect();
