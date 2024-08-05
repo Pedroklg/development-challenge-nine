@@ -1,27 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { TextField, Button, Grid, Autocomplete, CircularProgress } from '@mui/material';
+import { TextField, Button, Grid, Autocomplete } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { PatientFormProps } from '../types/patientsTypes';
 import { fetchAddressByCep } from '../utils/addressUtils';
 import { validateDate } from '../utils/validationUtils';
-
-interface PatientFormPropsComponent {
-    edit: boolean;
-}
 
 interface PatientListProps {
     id: number;
     name: string;
 }
 
-const PatientForm: React.FC<PatientFormPropsComponent> = ({ edit }) => {
+const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
+    const [id, setId] = useState<string | null>(null);
     const [formPatient, setFormPatient] = useState<PatientFormProps | null>(null);
     const [patientsList, setPatientsList] = useState<PatientListProps[]>([]);
     const [autocompleteValue, setAutocompleteValue] = useState<PatientListProps | null>(null);
     const [cepError, setCepError] = useState<string | null>(null);
     const [dataError, setDataError] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const location = useLocation();
     const initialPatient: PatientFormProps = {
@@ -44,11 +40,12 @@ const PatientForm: React.FC<PatientFormPropsComponent> = ({ edit }) => {
         return params.get('id');
     };
 
-    const [id, setId] = useState<string | null>(getIdFromQuery());
+    useEffect(() => {
+        setId(getIdFromQuery());
+    }, [location]);
 
     useEffect(() => {
         const fetchPatients = async () => {
-            setLoading(true);
             try {
                 const response = await axios.get('http://localhost:5000/patients/');
                 const transformedPatients = response.data.map((patient: any) => ({
@@ -58,8 +55,6 @@ const PatientForm: React.FC<PatientFormPropsComponent> = ({ edit }) => {
                 setPatientsList(transformedPatients);
             } catch (error) {
                 console.error('Error fetching patients:', error);
-            } finally {
-                setLoading(false);
             }
         };
 
@@ -69,7 +64,6 @@ const PatientForm: React.FC<PatientFormPropsComponent> = ({ edit }) => {
     useEffect(() => {
         if (id) {
             const fetchPatient = async () => {
-                setLoading(true);
                 try {
                     const response = await axios.get(`http://localhost:5000/patients/${id}`);
                     const patientData = response.data;
@@ -93,8 +87,6 @@ const PatientForm: React.FC<PatientFormPropsComponent> = ({ edit }) => {
                     setAutocompleteValue({ id: patientData.id, name: patientData.name });
                 } catch (error) {
                     console.error('Error fetching patient:', error);
-                } finally {
-                    setLoading(false);
                 }
             };
 
@@ -125,7 +117,7 @@ const PatientForm: React.FC<PatientFormPropsComponent> = ({ edit }) => {
             };
         });
 
-        if (name === 'cep') {
+        if (name === 'cep' && value.length >= 8) {
             const formattedValue = value.replace('-', '');
             const cepRegex = /^\d{8}$/;
             if (!cepRegex.test(formattedValue)) {
@@ -135,29 +127,33 @@ const PatientForm: React.FC<PatientFormPropsComponent> = ({ edit }) => {
             setCepError(null);
             fetchAddressByCep(formattedValue, setFormPatient);
         }
+
+        if (name === 'birth_date' && value.length >= 10) {
+            setDataError(validateDate(value) || null);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setDataError( await validateDate(formPatient) || null );
-    
+        setDataError(await validateDate(formPatient?.birth_date || '') || null);
+
         if (cepError || dataError) {
             return;
         }
-    
+
         if (edit && !autocompleteValue) {
             alert('Select a patient to edit');
             return;
         }
-    
+
         if (edit) {
             await updatePatient(formPatient as PatientFormProps);
+        } else {
+            await createPatient(formPatient as PatientFormProps);
         }
-        await createPatient(formPatient as PatientFormProps);
     };
 
     const createPatient = async (patient: PatientFormProps) => {
-        setLoading(true);
         try {
             await axios.post('http://localhost:5000/patients/', patient);
             setFormPatient(initialPatient);
@@ -165,13 +161,10 @@ const PatientForm: React.FC<PatientFormPropsComponent> = ({ edit }) => {
             navigate('/patients');
         } catch (error) {
             console.error('Error creating patient:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
     const updatePatient = async (patient: PatientFormProps) => {
-        setLoading(true);
         try {
             await axios.put(`http://localhost:5000/patients/${id}`, patient);
             alert('Patient updated successfully!');
@@ -179,8 +172,6 @@ const PatientForm: React.FC<PatientFormPropsComponent> = ({ edit }) => {
             navigate('/patients');
         } catch (error) {
             console.error('Error updating patient:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -189,13 +180,12 @@ const PatientForm: React.FC<PatientFormPropsComponent> = ({ edit }) => {
             setId(value.id.toString());
         } else {
             setAutocompleteValue(null);
-            setFormPatient(null);
+            setFormPatient(initialPatient);
         }
     };
 
     return (
         <div className="p-6">
-            {loading && <CircularProgress />}
             {edit && (
                 <Autocomplete
                     value={autocompleteValue}
