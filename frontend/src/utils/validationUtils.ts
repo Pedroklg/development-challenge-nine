@@ -1,5 +1,5 @@
 export const validateDate = (birth_date: string) => {
-    if (!birth_date) {
+    if (!birth_date || birth_date.length < 10) {
         return 'Data de nascimento inválida';
     }
     

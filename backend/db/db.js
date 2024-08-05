@@ -27,7 +27,7 @@ const createTables = async () => {
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
             birth_date DATE NOT NULL,
-            email VARCHAR(100) NOT NULL UNIQUE,
+            email VARCHAR(100) NOT NULL,
             address_id INTEGER REFERENCES addresses(id)
         );
     `;

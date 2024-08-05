@@ -176,12 +176,13 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
     };
 
     const handleAutocompleteChange = (_event: React.ChangeEvent<{}>, value: PatientListProps | null) => {
-        if (value) {
-            setId(value.id.toString());
-        } else {
+        if (!value) {
             setAutocompleteValue(null);
             setFormPatient(initialPatient);
+            return;
         }
+        
+        setId(value.id.toString());
     };
 
     return (
