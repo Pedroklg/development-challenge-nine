@@ -56,7 +56,6 @@ export const getPatientById = async (req, res) => {
 };
 
 export const createPatient = async (req, res) => {
-    console.log(req.body);
     const { error, value } = patientModel.validate(req.body);
     if (error) {
         return res.status(400).json({ error: error.details[0].message });

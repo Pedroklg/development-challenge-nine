@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import Home from './pages/Home';
 import PatientList from './pages/PatientList';
-import PatientForm from './pages/PatientForm';
+import EditPatient from './pages/EditPatient';
+import NewPatient from './pages/NewPatient';
 import Aside from './components/Aside';
 import theme from './theme';
 import './index.css';
@@ -18,8 +19,8 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/patients" element={<PatientList />} />
-              <Route path="/patients/new" element={<PatientForm />} />
-              <Route path="/patients/:id" element={<PatientForm />} />
+              <Route path="/patients/new" element={<NewPatient />} />
+              <Route path="/patients/edit" element={<EditPatient />} />
             </Routes>
           </main>
         </div>

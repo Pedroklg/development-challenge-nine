@@ -33,7 +33,7 @@ const PatientList: React.FC = () => {
   };
 
   const handleEditClick = (id: number) => {
-    navigate(`/patients/${id}`);
+    navigate(`/patients/edit?id=${id}`);
   };
 
   const handleDeleteClick = async (id: number) => {
@@ -49,23 +49,25 @@ const PatientList: React.FC = () => {
   const displayedPatients = patients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
-    <div className="p-6">
+    <div className="p-6 overflow-auto">
       <h1 className="text-2xl font-bold">Patient List</h1>
       <TableContainer component={Paper} className="my-4">
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell className="bg-gray-200">Name</TableCell>
-              <TableCell className="bg-gray-200">Birth Date</TableCell>
-              <TableCell className="bg-gray-200">Email</TableCell>
-              <TableCell className="bg-gray-200">Estado</TableCell>
-              <TableCell className="bg-gray-200">Cidade</TableCell>
-              <TableCell className="bg-gray-200">Actions</TableCell>
+              <TableCell className="bg-gray-200 w-1/12">ID</TableCell>
+              <TableCell className="bg-gray-200 w-2/12">Name</TableCell>
+              <TableCell className="bg-gray-200 w-1/12">Birth Date</TableCell>
+              <TableCell className="bg-gray-200 w-2/12">Email</TableCell>
+              <TableCell className="bg-gray-200 w-1/12">Estado</TableCell>
+              <TableCell className="bg-gray-200 w-1/12">Cidade</TableCell>
+              <TableCell className="bg-gray-200 w-2/12">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {displayedPatients.map((patient) => (
               <TableRow key={patient.id}>
+                <TableCell>{patient.id}</TableCell>
                 <TableCell>{patient.name}</TableCell>
                 <TableCell>{new Date(patient.birth_date).toLocaleDateString()}</TableCell>
                 <TableCell>{patient.email}</TableCell>

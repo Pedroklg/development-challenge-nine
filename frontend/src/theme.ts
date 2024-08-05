@@ -38,11 +38,10 @@ const theme = createTheme({
     MuiListItemText: {
       styleOverrides: {
         root: {
-          color: palette.medBlue,
           paddingLeft: '16px',
           transition: 'color 0.1s',
           ":hover" : {
-            color: palette.medDarkCyan,
+            fontWeight: 'bold',
           }
         }
       }
