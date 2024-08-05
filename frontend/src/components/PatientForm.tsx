@@ -3,6 +3,8 @@ import axios from 'axios';
 import { TextField, Button, Grid, Autocomplete, CircularProgress } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { PatientFormProps } from '../types/patientsTypes';
+import { fetchAddressByCep } from '../utils/addressUtils';
+import { validateDate } from '../utils/validationUtils';
 
 interface PatientFormPropsComponent {
     edit: boolean;
@@ -128,59 +130,30 @@ const PatientForm: React.FC<PatientFormPropsComponent> = ({ edit }) => {
             const cepRegex = /^\d{8}$/;
             if (!cepRegex.test(formattedValue)) {
                 setCepError('O CEP deve conter exatamente 8 números.');
-            } else {
-                setCepError(null);
-                if (formattedValue.length === 8) {
-                    fetchAddressByCep(formattedValue);
-                }
+                return;
             }
+            setCepError(null);
+            fetchAddressByCep(formattedValue, setFormPatient);
         }
     };
 
-    const fetchAddressByCep = async (cep: string) => {
-        try {
-            const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
-            const data = response.data;
-            setFormPatient(prevState => {
-                if (!prevState) return null;
-
-                return {
-                    ...prevState,
-                    address: {
-                        ...prevState.address,
-                        cep: data.cep.replace('-', ''),
-                        estado: data.uf,
-                        cidade: data.localidade,
-                        bairro: data.bairro,
-                        rua: data.logradouro,
-                        numero: '',
-                        complemento: ''
-                    }
-                };
-            });
-        } catch (error) {
-            console.error('Error fetching address:', error);
-        }
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        validateDate();
-
-        if (formPatient && (cepError || dataError)) {
+        setDataError( await validateDate(formPatient) || null );
+    
+        if (cepError || dataError) {
             return;
         }
-
+    
         if (edit && !autocompleteValue) {
             alert('Select a patient to edit');
             return;
         }
-
-        if (edit && formPatient) {
-            updatePatient(formPatient);
-        } else if (formPatient) {
-            createPatient(formPatient);
+    
+        if (edit) {
+            await updatePatient(formPatient as PatientFormProps);
         }
+        await createPatient(formPatient as PatientFormProps);
     };
 
     const createPatient = async (patient: PatientFormProps) => {
@@ -220,29 +193,9 @@ const PatientForm: React.FC<PatientFormPropsComponent> = ({ edit }) => {
         }
     };
 
-    const validateDate = () => {
-        if (formPatient?.birth_date) {
-            const date = new Date(formPatient.birth_date);
-            const today = new Date();
-
-            if (date > today) {
-                setDataError('Birth Date must be in the past');
-                return;
-            }
-        }
-        if (formPatient?.birth_date.length !== 10) {
-            setDataError('Birth Date must have 10 characters');
-            return;
-        }
-        setDataError(null);
-    };
-
-    if (loading) {
-        return <CircularProgress />;
-    }
-
     return (
         <div className="p-6">
+            {loading && <CircularProgress />}
             {edit && (
                 <Autocomplete
                     value={autocompleteValue}

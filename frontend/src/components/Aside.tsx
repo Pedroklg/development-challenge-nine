@@ -132,7 +132,7 @@ const Aside: React.FC = () => {
             {isOpen ? <MenuOpenIcon /> : <MenuIcon />}
           </IconButton>
           <Typography component={Link} to={"/"} sx={{ ml: (!isMobile) ? (isOpen ? 25 : 5) : '' }}>
-            <img src="logoMedcloud.svg" alt="Medcloud" className='h-20 p-4' />
+          {/* <img src="logoMedcloud.svg" alt="Medcloud" className='h-20 p-4' /> */}
           </Typography>
         </Toolbar>
       </AppBar>
