@@ -4,7 +4,7 @@ import { TextField, Button, Grid, Autocomplete } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import Patient from '../types/patientsTypes';
 import { useSnackbar } from '../context/SnackbarContext';
-import { validateInput } from '../utils/validationUtils'; // Importação da função de validação
+import { validateInput } from '../utils/validationUtils';
 
 interface PatientListProps {
     id: number;
@@ -68,8 +68,7 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
             const fetchPatient = async () => {
                 try {
                     const response = await axios.get(`http://localhost:5000/patients/${id}`);
-                    const patientData = { birth_date: response.data.birth_date.split('T')[0], ...response.data };
-
+                    const patientData = response.data;
                     setFormPatient(patientData);
                     setAutocompleteValue({ id: patientData.id, name: patientData.name });
                 } catch (error) {

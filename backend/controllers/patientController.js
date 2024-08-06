@@ -41,7 +41,7 @@ export const getPatients = async (req, res) => {
         const patients = rows.map(row => ({
             id: row.id,
             name: row.name,
-            birth_date: row.birth_date,
+            birth_date: row.birth_date.toISOString().split('T')[0],
             email: row.email,
             address: {
                 cep: row.cep,

@@ -1,21 +1,6 @@
 import { fetchAddressByCep } from './addressUtils';
 import Patient from '../types/patientsTypes';
 
-export const validateDate = (birth_date: string) => {
-    if (!birth_date || birth_date.length < 10) {
-        return 'Data de nascimento inválida';
-    }
-    
-    const date = new Date(birth_date);
-    const today = new Date();
-
-    if (date > today) {
-        return 'Data de nascimento inválida';
-    }
-
-    return;
-}
-
 export function validateInput(
   name: string,
   value: string,
@@ -37,21 +22,20 @@ export function validateInput(
         fetchAddressByCep(value, setFormPatient);
       }
       break;
+
     case 'birth_date':
-        // if (value.length < 10) {
-        //     setDataError('Data de nascimento inválida');
-        //     return;
-        // }
-        
+      if (value.length >= 10) {
         const date = new Date(value);
         const today = new Date();
-    
+
         if (date > today) {
-            return 'Data de nascimento inválida';
+          setDataError('Data de nascimento inválida');
+          return;
         }
-        setDataError(null);
+      }
+      setDataError(null);
       break;
-      
+
     case 'email':
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) {
