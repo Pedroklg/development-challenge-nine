@@ -2,12 +2,12 @@ import db from '../db/db.js';
 import patientModel from '../models/patientModel.js';
 
 const findAddress = async (address) => {
-    const { cep, estado, cidade, bairro, rua, numero, complemento } = address;
+    const { cep, state, city, district, street, number, complement } = address;
 
     try {
         const result = await db.query(
-            'SELECT id FROM addresses WHERE cep = $1 AND estado = $2 AND cidade = $3 AND bairro = $4 AND rua = $5 AND numero = $6 AND complemento = $7',
-            [cep, estado, cidade, bairro, rua, numero, complemento || null]
+            'SELECT id FROM addresses WHERE cep = $1 AND state = $2 AND city = $3 AND district = $4 AND street = $5 AND number = $6 AND complement = $7',
+            [cep, state, city, district, street, number, complement || null]
         );
 
         if (result.rows.length > 0) {
@@ -20,18 +20,29 @@ const findAddress = async (address) => {
     }
 };
 
+export const getPatientsSamples = async (req, res) => {
+    try {
+        const result = await db.query('SELECT id, name FROM patients');
+        const patientsSamples = result.rows;
+        res.status(200).json(patientsSamples);
+    } catch (error) {
+        console.error('Error getting patients samples:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 export const getPatients = async (req, res) => {
-    const limit = parseInt(req.query.limit, 10) || null;
-    const offset = parseInt(req.query.offset, 10) || 0;
+    const limit = parseInt(req.query.limit) || null;
+    const offset = parseInt(req.query.offset) || 0;
 
     try {
         const totalResult = await db.query('SELECT COUNT(*) FROM patients');
-        const total = parseInt(totalResult.rows[0].count, 10);
+        const total = parseInt(totalResult.rows[0].count);
 
         const { rows } = await db.query(`
             SELECT p.id, p.name, p.birth_date, p.email, 
-                   a.cep, a.estado, a.cidade, a.bairro, 
-                   a.rua, a.numero, a.complemento
+                   a.cep, a.state, a.city, a.district, 
+                   a.street, a.number, a.complement
             FROM patients p
             LEFT JOIN addresses a ON p.address_id = a.id
             OFFSET $1
@@ -41,16 +52,16 @@ export const getPatients = async (req, res) => {
         const patients = rows.map(row => ({
             id: row.id,
             name: row.name,
-            birth_date: row.birth_date.toISOString().split('T')[0],
+            birth_date: row.birth_date,
             email: row.email,
             address: {
                 cep: row.cep,
-                estado: row.estado,
-                cidade: row.cidade,
-                bairro: row.bairro,
-                rua: row.rua,
-                numero: row.numero,
-                complemento: row.complemento
+                state: row.state,
+                city: row.city,
+                district: row.district,
+                street: row.street,
+                number: row.number,
+                complement: row.complement
             }
         }));
 
@@ -66,8 +77,8 @@ export const getPatientById = async (req, res) => {
     try {
         const { rows } = await db.query(`
             SELECT p.id, p.name, p.birth_date, p.email, 
-                   a.cep, a.estado, a.cidade, a.bairro, 
-                   a.rua, a.numero, a.complemento
+                   a.cep, a.state, a.city, a.district, 
+                   a.street, a.number, a.complement
             FROM patients p
             LEFT JOIN addresses a ON p.address_id = a.id
             WHERE p.id = $1
@@ -84,12 +95,12 @@ export const getPatientById = async (req, res) => {
             email: rows[0].email,
             address: {
                 cep: rows[0].cep,
-                estado: rows[0].estado,
-                cidade: rows[0].cidade,
-                bairro: rows[0].bairro,
-                rua: rows[0].rua,
-                numero: rows[0].numero,
-                complemento: rows[0].complemento
+                state: rows[0].state,
+                city: rows[0].city,
+                district: rows[0].district,
+                street: rows[0].street,
+                number: rows[0].number,
+                complement: rows[0].complement
             }
         };
 
@@ -113,8 +124,8 @@ export const createPatient = async (req, res) => {
 
         if (!addressId) {
             const addressResult = await db.query(
-                'INSERT INTO addresses (cep, estado, cidade, bairro, rua, numero, complemento) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-                [address.cep, address.estado, address.cidade, address.bairro, address.rua, address.numero, address.complemento || null]
+                'INSERT INTO addresses (cep, state, city, district, street, number, complement) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+                [address.cep, address.state, address.city, address.district, address.street, address.number, address.complement || null]
             );
             addressId = addressResult.rows[0].id;
         }
@@ -133,6 +144,7 @@ export const createPatient = async (req, res) => {
 export const updatePatient = async (req, res) => {
     const { id } = req.params;
     const { error, value } = patientModel.validate(req.body);
+    
     if (error) {
         return res.status(400).json({ error: error.details[0].message });
     }
@@ -144,34 +156,58 @@ export const updatePatient = async (req, res) => {
     }
 
     try {
+        let addressId = null;
+
         if (address) {
-            let addressId = await findAddress(address);
+            addressId = await findAddress(address);
 
             if (!addressId) {
                 const addressResult = await db.query(
-                    'UPDATE addresses SET cep = $1, estado = $2, cidade = $3, bairro = $4, rua = $5, numero = $6, complemento = $7 WHERE id = (SELECT address_id FROM patients WHERE id = $8) RETURNING id',
-                    [address.cep, address.estado, address.cidade, address.bairro, address.rua, address.numero, address.complemento || null, id]
+                    'INSERT INTO addresses (cep, state, city, district, street, number, complement) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+                    [address.cep, address.state, address.city, address.district, address.street, address.number, address.complement || null]
                 );
+
                 addressId = addressResult.rows[0].id;
             } else {
-                await db.query(
-                    'UPDATE addresses SET cep = $1, estado = $2, cidade = $3, bairro = $4, rua = $5, numero = $6, complemento = $7 WHERE id = $8',
-                    [address.cep, address.estado, address.cidade, address.bairro, address.rua, address.numero, address.complemento || null, addressId]
+                const addressInUseResult = await db.query(
+                    'SELECT COUNT(*) FROM patients WHERE address_id = $1 AND id != $2',
+                    [addressId, id]
                 );
-            }
 
-            await db.query(
-                'UPDATE patients SET name = $1, birth_date = $2, email = $3, address_id = $4 WHERE id = $5 RETURNING *',
-                [name, birth_date, email, addressId, id]
-            );
-        } else {
-            await db.query(
-                'UPDATE patients SET name = $1, birth_date = $2, email = $3 WHERE id = $4 RETURNING *',
-                [name, birth_date, email, id]
-            );
+                const addressInUse = parseInt(addressInUseResult.rows[0].count, 10) > 0;
+
+                if (addressInUse) {
+                    const newAddressResult = await db.query(
+                        'INSERT INTO addresses (cep, state, city, district, street, number, complement) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+                        [address.cep, address.state, address.city, address.district, address.street, address.number, address.complement || null]
+                    );
+
+                    addressId = newAddressResult.rows[0].id;
+                } else {
+                    await db.query(
+                        'UPDATE addresses SET cep = $1, state = $2, city = $3, district = $4, street = $5, number = $6, complement = $7 WHERE id = $8',
+                        [address.cep, address.state, address.city, address.district, address.street, address.number, address.complement || null, addressId]
+                    );
+                }
+            }
         }
 
-        res.status(200).json({ message: 'Patient updated successfully' });
+        const updatePatientQuery = `
+            UPDATE patients SET 
+                name = COALESCE($1, name), 
+                birth_date = COALESCE($2, birth_date), 
+                email = COALESCE($3, email), 
+                address_id = COALESCE($4, address_id) 
+            WHERE id = $5 
+            RETURNING *`;
+
+        const patientResult = await db.query(updatePatientQuery, [name, birth_date, email, addressId, id]);
+
+        if (patientResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Patient not found' });
+        }
+
+        res.status(200).json({ message: 'Patient updated successfully', patient: patientResult.rows[0] });
     } catch (error) {
         console.error('Error updating patient:', error);
         res.status(500).json({ error: 'Internal server error' });

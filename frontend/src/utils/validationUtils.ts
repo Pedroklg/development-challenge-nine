@@ -19,7 +19,10 @@ export function validateInput(
           return;
         }
         setCepError(null);
-        fetchAddressByCep(value, setFormPatient);
+        if (!fetchAddressByCep(value, setFormPatient)){
+          setCepError('CEP não encontrado');
+        }
+
       }
       break;
 

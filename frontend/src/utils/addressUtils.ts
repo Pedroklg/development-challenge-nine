@@ -17,12 +17,12 @@ export const fetchAddressByCep = async (cep: string, setFormPatient: React.Dispa
                 address: {
                     ...prevState.address,
                     cep: data.cep.replace('-', ''),
-                    estado: data.uf,
-                    cidade: data.localidade,
-                    bairro: data.bairro,
-                    rua: data.logradouro,
-                    numero: '',
-                    complemento: ''
+                    state: data.uf,
+                    city: data.localidade,
+                    district: data.bairro,
+                    street: data.logradouro,
+                    number: '',
+                    complement: ''
                 }
             };
         });

@@ -50,7 +50,7 @@ const Aside: React.FC = () => {
     >
       <Divider />
       <List>
-        <Tooltip title="Home" placement="right" arrow>
+        <Tooltip title="Início" placement="right" arrow>
           <ListItem
             component={Link}
             to="/"
@@ -63,10 +63,10 @@ const Aside: React.FC = () => {
             }}
           >
             <HomeIcon />
-            {isOpen && <ListItemText primary="Home" sx={{ ml: 2 }} />}
+            {isOpen && <ListItemText primary="Início" sx={{ ml: 2 }} />}
           </ListItem>
         </Tooltip>
-        <Tooltip title="Patient List" placement="right" arrow>
+        <Tooltip title="Lista de Pacientes" placement="right" arrow>
           <ListItem
             component={Link}
             to="/patients"
@@ -79,10 +79,10 @@ const Aside: React.FC = () => {
             }}
           >
             <FormatListBulletedIcon />
-            {isOpen && <ListItemText primary="Patient List" sx={{ ml: 2 }} />}
+            {isOpen && <ListItemText primary="Lista de Pacientes" sx={{ ml: 2 }} />}
           </ListItem>
         </Tooltip>
-        <Tooltip title="Create Patient" placement="right" arrow>
+        <Tooltip title="Criar Pacientes" placement="right" arrow>
           <ListItem
             component={Link}
             to="/patients/new"
@@ -95,10 +95,10 @@ const Aside: React.FC = () => {
             }}
           >
             <CreateIcon />
-            {isOpen && <ListItemText primary="Create Patient" sx={{ ml: 2 }} />}
+            {isOpen && <ListItemText primary="Criar Paciente" sx={{ ml: 2 }} />}
           </ListItem>
         </Tooltip>
-        <Tooltip title="Edit Patient" placement="right" arrow>
+        <Tooltip title="Editar Pacientes" placement="right" arrow>
           <ListItem
             component={Link}
             to="/patients/edit/"
@@ -111,7 +111,7 @@ const Aside: React.FC = () => {
             }}
           >
             <EditNoteIcon />
-            {isOpen && <ListItemText primary="Edit Patient" sx={{ ml: 2 }} />}
+            {isOpen && <ListItemText primary="Editar Paciente" sx={{ ml: 2 }} />}
           </ListItem>
         </Tooltip>
       </List>
@@ -131,7 +131,7 @@ const Aside: React.FC = () => {
           >
             {isOpen ? <MenuOpenIcon /> : <MenuIcon />}
           </IconButton>
-          <Typography component={Link} to={"/"} sx={{ ml: (!isMobile) ? (isOpen ? 25 : 5) : '' }}>
+          <Typography component={Link} to={"/"} sx={{ ml: (!isMobile) ? (isOpen ? 25 : 5) : 0 }}>
           {/* <img src="logoMedcloud.svg" alt="Medcloud" className='h-20 p-4' /> */}
           </Typography>
         </Toolbar>

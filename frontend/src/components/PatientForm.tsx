@@ -28,12 +28,12 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
         email: '',
         address: {
             cep: '',
-            estado: '',
-            cidade: '',
-            bairro: '',
-            rua: '',
-            numero: '',
-            complemento: ''
+            state: '',
+            city: '',
+            district: '',
+            street: '',
+            number: '',
+            complement: ''
         }
     };
 
@@ -49,14 +49,11 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
     useEffect(() => {
         const fetchPatients = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/patients/');
-                const transformedPatients = response.data.map((patient: any) => ({
-                    id: patient.id,
-                    name: patient.name
-                }));
-                setPatientsList(transformedPatients);
+                const response = await axios.get('http://localhost:5000/patientsSamples/');
+                setPatientsList(response.data);
             } catch (error) {
                 console.error('Error fetching patients:', error);
+                setSnackbar('Erro buscando pacientes', 'error');
             }
         };
 
@@ -69,11 +66,12 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                 try {
                     const response = await axios.get(`http://localhost:5000/patients/${id}`);
                     const patientData = response.data;
-                    setFormPatient(patientData);
+                    setFormPatient({...patientData, birth_date: patientData.birth_date.split('T')[0], 
+                        address: { ...patientData.address, complement: patientData.address.complement || '' }});
                     setAutocompleteValue({ id: patientData.id, name: patientData.name });
                 } catch (error) {
                     console.error('Error fetching patient:', error);
-                    setSnackbar('Error fetching patient', 'error');
+                    setSnackbar('Erro buscando pacientes', 'error');
                 }
             };
 
@@ -112,12 +110,18 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (cepError || dataError) {
+        if (cepError || dataError || emailError || nameError) {
+            setSnackbar('Preencha os campos corretamente!', 'error');
+            return;
+        }
+
+        if (formPatient?.birth_date && formPatient.birth_date.length < 10) {
+            setDataError('Insira uma data válida!');
             return;
         }
 
         if (edit && !autocompleteValue) {
-            setSnackbar('Please select a patient to edit', 'error');
+            setSnackbar('Selecione um paciente para editar!', 'error');
             return;
         }
 
@@ -170,13 +174,13 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                     onChange={handleAutocompleteChange}
                     options={patientsList}
                     getOptionLabel={(option) => `${option.id} - ${option.name}`}
-                    renderInput={(params) => <TextField {...params} label="Select Patient" fullWidth />}
+                    renderInput={(params) => <TextField {...params} label="Selecione um Paciente" fullWidth />}
                     className='mb-4'
                 />
             )}
             <form onSubmit={handleSubmit}>
                 <TextField
-                    label="Name"
+                    label="Nome"
                     name="name"
                     value={formPatient?.name || ''}
                     onChange={handleChange}
@@ -186,7 +190,7 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                     helperText={nameError}
                 />
                 <TextField
-                    label="Birth Date"
+                    label="Data de Nascimento"
                     name="birth_date"
                     type="date"
                     value={formPatient?.birth_date || ''}
@@ -226,8 +230,8 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                     <Grid item xs={12} md={6}>
                         <TextField
                             label="Estado"
-                            name="estado"
-                            value={formPatient?.address?.estado || ''}
+                            name="state"
+                            value={formPatient?.address?.state || ''}
                             onChange={handleChange}
                             fullWidth
                             required
@@ -236,8 +240,8 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                     <Grid item xs={12} md={6}>
                         <TextField
                             label="Cidade"
-                            name="cidade"
-                            value={formPatient?.address?.cidade || ''}
+                            name="city"
+                            value={formPatient?.address?.city || ''}
                             onChange={handleChange}
                             fullWidth
                             required
@@ -246,8 +250,8 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                     <Grid item xs={12} md={6}>
                         <TextField
                             label="Bairro"
-                            name="bairro"
-                            value={formPatient?.address?.bairro || ''}
+                            name="district"
+                            value={formPatient?.address?.district || ''}
                             onChange={handleChange}
                             fullWidth
                             required
@@ -256,8 +260,8 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                     <Grid item xs={12} md={6}>
                         <TextField
                             label="Rua"
-                            name="rua"
-                            value={formPatient?.address?.rua || ''}
+                            name="street"
+                            value={formPatient?.address?.street || ''}
                             onChange={handleChange}
                             fullWidth
                             required
@@ -266,8 +270,8 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                     <Grid item xs={12} md={6}>
                         <TextField
                             label="Número"
-                            name="numero"
-                            value={formPatient?.address?.numero || ''}
+                            name="number"
+                            value={formPatient?.address?.number || ''}
                             onChange={handleChange}
                             fullWidth
                             required
@@ -276,8 +280,8 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                     <Grid item xs={12}>
                         <TextField
                             label="Complemento"
-                            name="complemento"
-                            value={formPatient?.address?.complemento || ''}
+                            name="complement"
+                            value={formPatient?.address?.complement || ''}
                             onChange={handleChange}
                             fullWidth
                         />

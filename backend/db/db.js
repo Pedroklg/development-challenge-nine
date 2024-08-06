@@ -13,12 +13,12 @@ const createTables = async () => {
         CREATE TABLE IF NOT EXISTS addresses (
             id SERIAL PRIMARY KEY,
             cep VARCHAR(8) NOT NULL,
-            estado VARCHAR(50) NOT NULL,
-            cidade VARCHAR(100) NOT NULL,
-            bairro VARCHAR(100) NOT NULL,
-            rua VARCHAR(255) NOT NULL,
-            numero VARCHAR(10) NOT NULL,
-            complemento VARCHAR(255)
+            state VARCHAR(50) NOT NULL,
+            city VARCHAR(100) NOT NULL,
+            district VARCHAR(100) NOT NULL,
+            street VARCHAR(255) NOT NULL,
+            number VARCHAR(10) NOT NULL,
+            complement VARCHAR(255)
         );
     `;
 

@@ -8,12 +8,12 @@ interface Patient {
 
 interface Address {
   cep: string;
-  estado: string;
-  cidade: string;
-  bairro: string;
-  rua: string;
-  numero: string;
-  complemento?: string;
+  state: string;
+  city: string;
+  district: string;
+  street: string;
+  number: string;
+  complement?: string;
 }
 
 export default Patient;

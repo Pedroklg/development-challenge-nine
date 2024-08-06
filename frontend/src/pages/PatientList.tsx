@@ -30,6 +30,8 @@ const PatientList: React.FC = () => {
             const response = await axios.get(`http://localhost:5000/patients?limit=${rowsPerPage}&offset=${page * rowsPerPage}`);
             setPatients(response.data.patients);
             setTotalPatients(response.data.total);
+            console.log(response.data.patients);
+            console.log(response.data.total);
         } catch (error) {
             console.error('Error fetching patients:', error);
             setSnackbar('Error fetching patients', 'error');
@@ -91,18 +93,18 @@ const PatientList: React.FC = () => {
 
   return (
     <div className="p-6 overflow-auto">
-      <h1 className="text-2xl font-bold">Patient List</h1>
+      <h1 className="text-2xl font-bold">Lista de Pacientes</h1>
       <TableContainer component={Paper} className="my-4">
         <Table>
           <TableHead>
             <TableRow>
               <TableCell className="bg-gray-200 w-1/12">ID</TableCell>
-              <TableCell className="bg-gray-200 w-2/12">Name</TableCell>
-              <TableCell className="bg-gray-200 w-1/12">{isMobile ? 'Year' : 'Birth Date'}</TableCell>
+              <TableCell className="bg-gray-200 w-2/12">Nome</TableCell>
+              <TableCell className="bg-gray-200 w-1/12">{isMobile ? 'Ano' : 'Data Nasc.'}</TableCell>
               {!isMobile && <TableCell className="bg-gray-200 w-2/12">Email</TableCell>}
               <TableCell className="bg-gray-200 w-1/12">Estado</TableCell>
               <TableCell className="bg-gray-200 w-1/12">Cidade</TableCell>
-              <TableCell className="bg-gray-200 w-2/12">Actions</TableCell>
+              <TableCell className="bg-gray-200 w-2/12">Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -112,8 +114,8 @@ const PatientList: React.FC = () => {
                 <TableCell>{patient.name}</TableCell>
                 <TableCell>{isMobile ? new Date(patient.birth_date).getFullYear() : new Date(patient.birth_date).toLocaleDateString()}</TableCell>
                 {!isMobile && <TableCell>{patient.email}</TableCell>}
-                <TableCell>{patient.address.estado}</TableCell>
-                <TableCell>{patient.address.cidade}</TableCell>
+                <TableCell>{patient.address.state}</TableCell>
+                <TableCell>{patient.address.city}</TableCell>
                 <TableCell>
                   <Button variant="contained" color="info" onClick={() => handleDetailsClick(patient.id ?? '')}>
                     <VisibilityIcon />
@@ -148,24 +150,24 @@ const PatientList: React.FC = () => {
           {dialogType === 'details' && selectedPatient ? (
             <DialogContentText>
               <strong>ID:</strong> {selectedPatient.id}<br />
-              <strong>Name:</strong> {selectedPatient.name}<br />
-              <strong>Birth Date:</strong> {new Date(selectedPatient.birth_date).toLocaleDateString()}<br />
+              <strong>Nome:</strong> {selectedPatient.name}<br />
+              <strong>Data de Nascimento:</strong> {new Date(selectedPatient.birth_date).toLocaleDateString()}<br />
               <strong>Email:</strong> {selectedPatient.email}<br />
-              <strong>Estado:</strong> {selectedPatient.address.estado}<br />
-              <strong>Cidade:</strong> {selectedPatient.address.cidade}<br />
-              <strong>Bairro:</strong> {selectedPatient.address.bairro}<br />
-              <strong>Rua:</strong> {selectedPatient.address.rua}<br />
-              <strong>Numero:</strong> {selectedPatient.address.numero}<br />
-              <strong>Complemento:</strong> {selectedPatient.address.complemento ?? 'N/A'}
+              <strong>Estado:</strong> {selectedPatient.address.state}<br />
+              <strong>Cidade:</strong> {selectedPatient.address.city}<br />
+              <strong>Bairro:</strong> {selectedPatient.address.district}<br />
+              <strong>Rua:</strong> {selectedPatient.address.street}<br />
+              <strong>Número:</strong> {selectedPatient.address.number}<br />
+              <strong>Complemento:</strong> {selectedPatient.address.complement ?? 'N/A'}
             </DialogContentText>
           ) : (
-            <DialogContentText>Are you sure you want to delete this patient?</DialogContentText>
+            <DialogContentText>Tem certeza que quer deletar este paciente?</DialogContentText>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">Cancel</Button>
+          <Button onClick={handleClose} color="primary">Cancelar</Button>
           {dialogType === 'delete' && (
-            <Button onClick={handleConfirmDelete} color="secondary">Delete</Button>
+            <Button onClick={handleConfirmDelete} color="secondary">Deletar</Button>
           )}
         </DialogActions>
       </Dialog>
