@@ -21,14 +21,22 @@ const findAddress = async (address) => {
 };
 
 export const getPatients = async (req, res) => {
+    const limit = parseInt(req.query.limit, 10) || null;
+    const offset = parseInt(req.query.offset, 10) || 0;
+
     try {
+        const totalResult = await db.query('SELECT COUNT(*) FROM patients');
+        const total = parseInt(totalResult.rows[0].count, 10);
+
         const { rows } = await db.query(`
             SELECT p.id, p.name, p.birth_date, p.email, 
                    a.cep, a.estado, a.cidade, a.bairro, 
                    a.rua, a.numero, a.complemento
             FROM patients p
             LEFT JOIN addresses a ON p.address_id = a.id
-        `);
+            OFFSET $1
+            LIMIT $2
+        `, [offset, limit]);
 
         const patients = rows.map(row => ({
             id: row.id,
@@ -46,7 +54,7 @@ export const getPatients = async (req, res) => {
             }
         }));
 
-        res.status(200).json(patients);
+        res.status(200).json({ total, patients });
     } catch (error) {
         console.error('Error getting patients:', error);
         res.status(500).json({ error: 'Internal server error' });

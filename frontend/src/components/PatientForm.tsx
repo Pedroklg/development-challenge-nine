@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { TextField, Button, Grid, Autocomplete } from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Patient from '../types/patientsTypes';
-import { fetchAddressByCep } from '../utils/addressUtils';
-import { validateDate } from '../utils/validationUtils';
 import { useSnackbar } from '../context/SnackbarContext';
+import { validateInput } from '../utils/validationUtils'; // Importação da função de validação
 
 interface PatientListProps {
     id: number;
@@ -19,9 +18,10 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
     const [autocompleteValue, setAutocompleteValue] = useState<PatientListProps | null>(null);
     const [cepError, setCepError] = useState<string | null>(null);
     const [dataError, setDataError] = useState<string | null>(null);
-    const navigate = useNavigate();
+    const [emailError, setEmailError] = useState<string | null>(null);
+    const [nameError, setNameError] = useState<string | null>(null);
     const location = useLocation();
-    const { setSnackbar } = useSnackbar(); 
+    const { setSnackbar } = useSnackbar();
     const initialPatient: Patient = {
         name: '',
         birth_date: '',
@@ -68,7 +68,7 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
             const fetchPatient = async () => {
                 try {
                     const response = await axios.get(`http://localhost:5000/patients/${id}`);
-                    const patientData = {birth_date: response.data.birth_date.split('T')[0], ...response.data };
+                    const patientData = { birth_date: response.data.birth_date.split('T')[0], ...response.data };
 
                     setFormPatient(patientData);
                     setAutocompleteValue({ id: patientData.id, name: patientData.name });
@@ -107,25 +107,11 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
             };
         });
 
-        if (inputName === 'cep' && inputValue.length >= 8) {
-            const formattedValue = inputValue.replace('-', '');
-            const cepRegex = /^\d{8}$/;
-            if (!cepRegex.test(formattedValue)) {
-                setCepError('O CEP deve conter exatamente 8 números.');
-                return;
-            }
-            setCepError(null);
-            fetchAddressByCep(formattedValue, setFormPatient);
-        }
-
-        if (inputName === 'birth_date' && inputValue.length >= 10) {
-            setDataError(validateDate(inputValue) || null);
-        }
+        validateInput(inputName, inputValue, setCepError, setDataError, setEmailError, setNameError, setFormPatient);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setDataError(await validateDate(formPatient?.birth_date || '') || null);
 
         if (cepError || dataError) {
             return;
@@ -146,9 +132,9 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
     const createPatient = async (patient: Patient) => {
         try {
             await axios.post('http://localhost:5000/patients/', patient);
-            setFormPatient(initialPatient);
             setSnackbar('Patient created successfully!', 'success');
-            navigate('/patients');
+            setFormPatient(initialPatient);
+            setId(null);
         } catch (error) {
             console.error('Error creating patient:', error);
             setSnackbar('Error creating patient', 'error');
@@ -160,7 +146,7 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
             await axios.put(`http://localhost:5000/patients/${id}`, patient);
             setSnackbar('Patient updated successfully!', 'success');
             setFormPatient(initialPatient);
-            navigate('/patients');
+            setId(null);
         } catch (error) {
             console.error('Error updating patient:', error);
             setSnackbar('Error updating patient', 'error');
@@ -173,7 +159,7 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
             setFormPatient(initialPatient);
             return;
         }
-        
+
         setId(value.id.toString());
     };
 
@@ -197,6 +183,8 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                     onChange={handleChange}
                     fullWidth
                     required
+                    error={!!nameError}
+                    helperText={nameError}
                 />
                 <TextField
                     label="Birth Date"
@@ -220,6 +208,8 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                     onChange={handleChange}
                     fullWidth
                     required
+                    error={!!emailError}
+                    helperText={emailError}
                 />
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>

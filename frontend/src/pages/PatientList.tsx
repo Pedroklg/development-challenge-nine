@@ -12,6 +12,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 const PatientList: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [totalPatients, setTotalPatients] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [open, setOpen] = useState(false);
@@ -25,17 +26,18 @@ const PatientList: React.FC = () => {
 
   useEffect(() => {
     const fetchPatients = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/patients');
-        setPatients(response.data);
-      } catch (error) {
-        console.error('Error fetching patients:', error);
-        setSnackbar('Error fetching patients', 'error');
-      }
+        try {
+            const response = await axios.get(`http://localhost:5000/patients?limit=${rowsPerPage}&offset=${page * rowsPerPage}`);
+            setPatients(response.data.patients);
+            setTotalPatients(response.data.total);
+        } catch (error) {
+            console.error('Error fetching patients:', error);
+            setSnackbar('Error fetching patients', 'error');
+        }
     };
 
     fetchPatients();
-  }, [setSnackbar]);
+}, [setSnackbar, rowsPerPage, page]);
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
@@ -87,8 +89,6 @@ const PatientList: React.FC = () => {
     }
   };
 
-  const displayedPatients = patients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
   return (
     <div className="p-6 overflow-auto">
       <h1 className="text-2xl font-bold">Patient List</h1>
@@ -106,7 +106,7 @@ const PatientList: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {displayedPatients.map((patient) => (
+            {patients.map((patient) => (
               <TableRow key={patient.id}>
                 <TableCell>{patient.id}</TableCell>
                 <TableCell>{patient.name}</TableCell>
@@ -133,7 +133,7 @@ const PatientList: React.FC = () => {
       <TablePagination
         rowsPerPageOptions={[5, 10, 15]}
         component="div"
-        count={patients.length}
+        count={totalPatients}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
