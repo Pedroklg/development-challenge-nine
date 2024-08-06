@@ -23,11 +23,30 @@ const findAddress = async (address) => {
 export const getPatients = async (req, res) => {
     try {
         const { rows } = await db.query(`
-            SELECT p.*, a.*
+            SELECT p.id, p.name, p.birth_date, p.email, 
+                   a.cep, a.estado, a.cidade, a.bairro, 
+                   a.rua, a.numero, a.complemento
             FROM patients p
             LEFT JOIN addresses a ON p.address_id = a.id
         `);
-        res.status(200).json(rows);
+
+        const patients = rows.map(row => ({
+            id: row.id,
+            name: row.name,
+            birth_date: row.birth_date,
+            email: row.email,
+            address: {
+                cep: row.cep,
+                estado: row.estado,
+                cidade: row.cidade,
+                bairro: row.bairro,
+                rua: row.rua,
+                numero: row.numero,
+                complemento: row.complemento
+            }
+        }));
+
+        res.status(200).json(patients);
     } catch (error) {
         console.error('Error getting patients:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -37,18 +56,36 @@ export const getPatients = async (req, res) => {
 export const getPatientById = async (req, res) => {
     const { id } = req.params;
     try {
-        const patient = await db.query(`
-            SELECT p.*, a.*
+        const { rows } = await db.query(`
+            SELECT p.id, p.name, p.birth_date, p.email, 
+                   a.cep, a.estado, a.cidade, a.bairro, 
+                   a.rua, a.numero, a.complemento
             FROM patients p
             LEFT JOIN addresses a ON p.address_id = a.id
             WHERE p.id = $1
         `, [id]);
 
-        if (patient.rows.length === 0) {
+        if (rows.length === 0) {
             return res.status(404).json({ error: 'Patient not found' });
         }
 
-        res.status(200).json(patient.rows[0]);
+        const patient = {
+            id: rows[0].id,
+            name: rows[0].name,
+            birth_date: rows[0].birth_date,
+            email: rows[0].email,
+            address: {
+                cep: rows[0].cep,
+                estado: rows[0].estado,
+                cidade: rows[0].cidade,
+                bairro: rows[0].bairro,
+                rua: rows[0].rua,
+                numero: rows[0].numero,
+                complemento: rows[0].complemento
+            }
+        };
+
+        res.status(200).json(patient);
     } catch (error) {
         console.error('Error getting patient by id:', error);
         res.status(500).json({ error: 'Internal server error' });

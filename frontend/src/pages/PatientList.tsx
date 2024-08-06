@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Button, 
+  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Patient from '../types/patientsTypes';
 import { useSnackbar } from '../context/SnackbarContext';
@@ -15,7 +16,7 @@ const PatientList: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [open, setOpen] = useState(false);
   const [dialogType, setDialogType] = useState<'details' | 'delete' | null>(null);
-  const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const navigate = useNavigate();
   const { setSnackbar } = useSnackbar();
@@ -45,7 +46,7 @@ const PatientList: React.FC = () => {
     setPage(0);
   };
 
-  const handleDetailsClick = (id: number) => {
+  const handleDetailsClick = (id: string) => {
     const patient = patients.find(patient => patient.id === id);
     if (patient) {
       setSelectedPatient(patient);
@@ -54,11 +55,11 @@ const PatientList: React.FC = () => {
     }
   };
 
-  const handleEditClick = (id: number) => {
+  const handleEditClick = (id: string) => {
     navigate(`/patients/edit?id=${id}`);
   };
 
-  const handleDeleteClick = (id: number) => {
+  const handleDeleteClick = (id: string) => {
     setSelectedPatientId(id);
     setDialogType('delete');
     setOpen(true);
@@ -75,7 +76,7 @@ const PatientList: React.FC = () => {
     if (selectedPatientId !== null) {
       try {
         await axios.delete(`http://localhost:5000/patients/${selectedPatientId}`);
-        setPatients((prevPatients) => prevPatients.filter((patient) => patient.id !== selectedPatientId));
+        setPatients((prevPatients) => prevPatients.filter((patient) => patient.id !== String(selectedPatientId)));
         setSnackbar('Patient deleted successfully', 'success');
       } catch (error) {
         console.error('Error deleting patient:', error);
@@ -111,16 +112,16 @@ const PatientList: React.FC = () => {
                 <TableCell>{patient.name}</TableCell>
                 <TableCell>{isMobile ? new Date(patient.birth_date).getFullYear() : new Date(patient.birth_date).toLocaleDateString()}</TableCell>
                 {!isMobile && <TableCell>{patient.email}</TableCell>}
-                <TableCell>{patient.estado}</TableCell>
-                <TableCell>{patient.cidade}</TableCell>
+                <TableCell>{patient.address.estado}</TableCell>
+                <TableCell>{patient.address.cidade}</TableCell>
                 <TableCell>
-                  <Button variant="contained" color="info" onClick={() => handleDetailsClick(patient.id)}>
+                  <Button variant="contained" color="info" onClick={() => handleDetailsClick(patient.id ?? '')}>
                     <VisibilityIcon />
                   </Button>
-                  <Button variant="contained" color="primary" onClick={() => handleEditClick(patient.id)}>
+                  <Button variant="contained" color="primary" onClick={() => handleEditClick(patient.id ?? '')}>
                     <EditIcon />
                   </Button>
-                  <Button variant="contained" color="error" onClick={() => handleDeleteClick(patient.id)}>
+                  <Button variant="contained" color="error" onClick={() => handleDeleteClick(patient.id ?? '')}>
                     <DeleteIcon />
                   </Button>
                 </TableCell>
@@ -150,12 +151,12 @@ const PatientList: React.FC = () => {
               <strong>Name:</strong> {selectedPatient.name}<br />
               <strong>Birth Date:</strong> {new Date(selectedPatient.birth_date).toLocaleDateString()}<br />
               <strong>Email:</strong> {selectedPatient.email}<br />
-              <strong>Estado:</strong> {selectedPatient.estado}<br />
-              <strong>Cidade:</strong> {selectedPatient.cidade}<br />
-              <strong>Bairro:</strong> {selectedPatient.bairro}<br />
-              <strong>Rua:</strong> {selectedPatient.rua}<br />
-              <strong>Numero:</strong> {selectedPatient.numero}<br />
-              <strong>Complemento:</strong> {selectedPatient.complemento ? selectedPatient.complemento : 'N/A'}
+              <strong>Estado:</strong> {selectedPatient.address.estado}<br />
+              <strong>Cidade:</strong> {selectedPatient.address.cidade}<br />
+              <strong>Bairro:</strong> {selectedPatient.address.bairro}<br />
+              <strong>Rua:</strong> {selectedPatient.address.rua}<br />
+              <strong>Numero:</strong> {selectedPatient.address.numero}<br />
+              <strong>Complemento:</strong> {selectedPatient.address.complemento ?? 'N/A'}
             </DialogContentText>
           ) : (
             <DialogContentText>Are you sure you want to delete this patient?</DialogContentText>

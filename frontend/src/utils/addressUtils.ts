@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { PatientFormProps } from '../types/patientsTypes';
+import Patient from '../types/patientsTypes';
 
-export const fetchAddressByCep = async (cep: string, setFormPatient: React.Dispatch<React.SetStateAction<PatientFormProps | null>>) => {
+export const fetchAddressByCep = async (cep: string, setFormPatient: React.Dispatch<React.SetStateAction<Patient | null>>) => {
     try {
         const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
         const data = response.data;
@@ -9,7 +9,7 @@ export const fetchAddressByCep = async (cep: string, setFormPatient: React.Dispa
             console.error('CEP not found');
             return false;
         }
-        setFormPatient((prevState: PatientFormProps | null) => {
+        setFormPatient((prevState: Patient | null) => {
             if (!prevState) return null;
 
             return {
