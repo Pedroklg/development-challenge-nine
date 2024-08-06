@@ -148,7 +148,7 @@ const Aside: React.FC = () => {
             bgcolor: 'white',
             overflow: 'hidden',
             color: medDarkCyan,
-            mt: 8,
+            mt: 6,
           },
         }}
       >

@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { PatientFormProps } from '../types/patientsTypes';
 import { fetchAddressByCep } from '../utils/addressUtils';
 import { validateDate } from '../utils/validationUtils';
+import { useSnackbar } from '../context/SnackbarContext';
 
 interface PatientListProps {
     id: number;
@@ -20,6 +21,7 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
     const [dataError, setDataError] = useState<string | null>(null);
     const navigate = useNavigate();
     const location = useLocation();
+    const { setSnackbar } = useSnackbar(); 
     const initialPatient: PatientFormProps = {
         name: '',
         birth_date: '',
@@ -87,6 +89,7 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                     setAutocompleteValue({ id: patientData.id, name: patientData.name });
                 } catch (error) {
                     console.error('Error fetching patient:', error);
+                    setSnackbar('Error fetching patient', 'error');
                 }
             };
 
@@ -142,7 +145,7 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
         }
 
         if (edit && !autocompleteValue) {
-            alert('Select a patient to edit');
+            setSnackbar('Please select a patient to edit', 'error');
             return;
         }
 
@@ -157,21 +160,23 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
         try {
             await axios.post('http://localhost:5000/patients/', patient);
             setFormPatient(initialPatient);
-            alert('Patient created successfully!');
+            setSnackbar('Patient created successfully!', 'success');
             navigate('/patients');
         } catch (error) {
             console.error('Error creating patient:', error);
+            setSnackbar('Error creating patient', 'error');
         }
     };
 
     const updatePatient = async (patient: PatientFormProps) => {
         try {
             await axios.put(`http://localhost:5000/patients/${id}`, patient);
-            alert('Patient updated successfully!');
+            setSnackbar('Patient updated successfully!', 'success');
             setFormPatient(initialPatient);
             navigate('/patients');
         } catch (error) {
             console.error('Error updating patient:', error);
+            setSnackbar('Error updating patient', 'error');
         }
     };
 

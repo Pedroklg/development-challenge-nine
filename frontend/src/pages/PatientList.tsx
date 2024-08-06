@@ -1,14 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Patient from '../types/patientsTypes';
+import { useSnackbar } from '../context/SnackbarContext';
+import { useMediaQuery, useTheme } from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const PatientList: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [open, setOpen] = useState(false);
+  const [dialogType, setDialogType] = useState<'details' | 'delete' | null>(null);
+  const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const navigate = useNavigate();
+  const { setSnackbar } = useSnackbar();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -17,11 +29,12 @@ const PatientList: React.FC = () => {
         setPatients(response.data);
       } catch (error) {
         console.error('Error fetching patients:', error);
+        setSnackbar('Error fetching patients', 'error');
       }
     };
 
     fetchPatients();
-  }, []);
+  }, [setSnackbar]);
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
@@ -32,19 +45,46 @@ const PatientList: React.FC = () => {
     setPage(0);
   };
 
+  const handleDetailsClick = (id: number) => {
+    const patient = patients.find(patient => patient.id === id);
+    if (patient) {
+      setSelectedPatient(patient);
+      setDialogType('details');
+      setOpen(true);
+    }
+  };
+
   const handleEditClick = (id: number) => {
     navigate(`/patients/edit?id=${id}`);
   };
 
-  const handleDeleteClick = async (id: number) => {
-    alert('Are you sure you want to delete this patient?');
-    try {
-      await axios.delete(`http://localhost:5000/patients/${id}`);
-      setPatients((prevPatients) => prevPatients.filter((patient) => patient.id !== id));
-    } catch (error) {
-      console.error('Error deleting patient:', error);
+  const handleDeleteClick = (id: number) => {
+    setSelectedPatientId(id);
+    setDialogType('delete');
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedPatientId(null);
+    setSelectedPatient(null);
+    setDialogType(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedPatientId !== null) {
+      try {
+        await axios.delete(`http://localhost:5000/patients/${selectedPatientId}`);
+        setPatients((prevPatients) => prevPatients.filter((patient) => patient.id !== selectedPatientId));
+        setSnackbar('Patient deleted successfully', 'success');
+      } catch (error) {
+        console.error('Error deleting patient:', error);
+        setSnackbar('Error deleting patient', 'error');
+      } finally {
+        handleClose();
+      }
     }
-  }
+  };
 
   const displayedPatients = patients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -57,8 +97,8 @@ const PatientList: React.FC = () => {
             <TableRow>
               <TableCell className="bg-gray-200 w-1/12">ID</TableCell>
               <TableCell className="bg-gray-200 w-2/12">Name</TableCell>
-              <TableCell className="bg-gray-200 w-1/12">Birth Date</TableCell>
-              <TableCell className="bg-gray-200 w-2/12">Email</TableCell>
+              <TableCell className="bg-gray-200 w-1/12">{isMobile ? 'Year' : 'Birth Date'}</TableCell>
+              {!isMobile && <TableCell className="bg-gray-200 w-2/12">Email</TableCell>}
               <TableCell className="bg-gray-200 w-1/12">Estado</TableCell>
               <TableCell className="bg-gray-200 w-1/12">Cidade</TableCell>
               <TableCell className="bg-gray-200 w-2/12">Actions</TableCell>
@@ -69,16 +109,19 @@ const PatientList: React.FC = () => {
               <TableRow key={patient.id}>
                 <TableCell>{patient.id}</TableCell>
                 <TableCell>{patient.name}</TableCell>
-                <TableCell>{new Date(patient.birth_date).toLocaleDateString()}</TableCell>
-                <TableCell>{patient.email}</TableCell>
+                <TableCell>{isMobile ? new Date(patient.birth_date).getFullYear() : new Date(patient.birth_date).toLocaleDateString()}</TableCell>
+                {!isMobile && <TableCell>{patient.email}</TableCell>}
                 <TableCell>{patient.estado}</TableCell>
                 <TableCell>{patient.cidade}</TableCell>
                 <TableCell>
-                  <Button variant="contained" color="primary" onClick={() => handleEditClick(patient.id)}>
-                    Edit
+                  <Button variant="contained" color="info" onClick={() => handleDetailsClick(patient.id)}>
+                    <VisibilityIcon />
                   </Button>
-                  <Button variant="contained" color="secondary" onClick={() => handleDeleteClick(patient.id)}>
-                    Delete
+                  <Button variant="contained" color="primary" onClick={() => handleEditClick(patient.id)}>
+                    <EditIcon />
+                  </Button>
+                  <Button variant="contained" color="error" onClick={() => handleDeleteClick(patient.id)}>
+                    <DeleteIcon />
                   </Button>
                 </TableCell>
               </TableRow>
@@ -87,7 +130,7 @@ const PatientList: React.FC = () => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[10, 20, 30]}
+        rowsPerPageOptions={[5, 10, 15]}
         component="div"
         count={patients.length}
         rowsPerPage={rowsPerPage}
@@ -95,6 +138,36 @@ const PatientList: React.FC = () => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+
+      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
+        <DialogTitle>
+          {dialogType === 'details' ? 'Patient Details' : 'Confirm Deletion'}
+        </DialogTitle>
+        <DialogContent>
+          {dialogType === 'details' && selectedPatient ? (
+            <DialogContentText>
+              <strong>ID:</strong> {selectedPatient.id}<br />
+              <strong>Name:</strong> {selectedPatient.name}<br />
+              <strong>Birth Date:</strong> {new Date(selectedPatient.birth_date).toLocaleDateString()}<br />
+              <strong>Email:</strong> {selectedPatient.email}<br />
+              <strong>Estado:</strong> {selectedPatient.estado}<br />
+              <strong>Cidade:</strong> {selectedPatient.cidade}<br />
+              <strong>Bairro:</strong> {selectedPatient.bairro}<br />
+              <strong>Rua:</strong> {selectedPatient.rua}<br />
+              <strong>Numero:</strong> {selectedPatient.numero}<br />
+              <strong>Complemento:</strong> {selectedPatient.complemento ? selectedPatient.complemento : 'N/A'}
+            </DialogContentText>
+          ) : (
+            <DialogContentText>Are you sure you want to delete this patient?</DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">Cancel</Button>
+          {dialogType === 'delete' && (
+            <Button onClick={handleConfirmDelete} color="secondary">Delete</Button>
+          )}
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
