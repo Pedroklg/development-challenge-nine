@@ -149,6 +149,7 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
             await axios.put(`http://localhost:5000/patients/${id}`, patient);
             setSnackbar('Patient updated successfully!', 'success');
             setFormPatient(initialPatient);
+            setAutocompleteValue(null);
             setId(null);
         } catch (error) {
             console.error('Error updating patient:', error);
