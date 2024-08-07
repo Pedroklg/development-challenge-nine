@@ -4,7 +4,7 @@ const PageNotFound: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col items-center justify-center h-full">
+    <div className="flex flex-col items-center justify-center h-full p-6">
       <h1 className="text-4xl font-bold">404</h1>
       <p className="text-xl">Pagina Não encontrada!</p>
       <button

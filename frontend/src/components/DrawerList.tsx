@@ -29,7 +29,7 @@ const DrawerList: React.FC<DrawerListProps> = ({ isOpen, isMobile, drawerWidth, 
       case '/patients/new':
         setSelected('Create');
         break;
-      case '/patients/edit':
+      case '/patients/edit/':
         setSelected('Edit');
         break;
       default:

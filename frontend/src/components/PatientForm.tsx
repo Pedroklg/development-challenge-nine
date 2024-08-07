@@ -66,8 +66,10 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                 try {
                     const response = await axios.get(`http://localhost:5000/patients/${id}`);
                     const patientData = response.data;
-                    setFormPatient({...patientData, birth_date: patientData.birth_date.split('T')[0], 
-                        address: { ...patientData.address, complement: patientData.address.complement || '' }});
+                    setFormPatient({
+                        ...patientData, birth_date: patientData.birth_date.split('T')[0],
+                        address: { ...patientData.address, complement: patientData.address.complement || '' }
+                    });
                     setAutocompleteValue({ id: patientData.id, name: patientData.name });
                 } catch (error) {
                     console.error('Error fetching patient:', error);
@@ -125,11 +127,12 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
             return;
         }
 
-        if (edit) {
-            await updatePatient(formPatient as Patient);
-        } else {
+        if (!edit) {
             await createPatient(formPatient as Patient);
+            return;
         }
+        await updatePatient(formPatient as Patient);
+
     };
 
     const createPatient = async (patient: Patient) => {
@@ -168,7 +171,7 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
     };
 
     return (
-        <div className="p-6">
+        <>
             {edit && (
                 <Autocomplete
                     value={autocompleteValue}
@@ -292,7 +295,7 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                     {edit ? 'Update Patient' : 'Create Patient'}
                 </Button>
             </form>
-        </div>
+        </>
     );
 };
 
