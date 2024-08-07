@@ -1,16 +1,4 @@
 services:
-  backend:
-    build: ./backend
-    ports:
-      - "5000:5000"
-    depends_on:
-      - db
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "4173:4173"
-
   db:
     image: postgres:13
     environment:
@@ -19,6 +7,26 @@ services:
       POSTGRES_DB: patientdb
     volumes:
       - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d patientdb"]
+      interval: 5s
+      timeout: 4s
+      retries: 8
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/patientdb
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "4173:4173"
 
 volumes:
   db-data:
