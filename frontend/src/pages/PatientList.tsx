@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Patient from '../types/patientsTypes';
 import { useSnackbar } from '../context/SnackbarContext';
@@ -32,7 +32,7 @@ const PatientList: React.FC = () => {
             setTotalPatients(response.data.total);
         } catch (error) {
             console.error('Error fetching patients:', error);
-            setSnackbar('Error fetching patients', 'error');
+            setSnackbar('Erro ao buscar pacientes', 'error');
         }
     };
 
@@ -79,10 +79,10 @@ const PatientList: React.FC = () => {
       try {
         await axios.delete(`http://localhost:5000/patients/${selectedPatientId}`);
         setPatients((prevPatients) => prevPatients.filter((patient) => patient.id !== String(selectedPatientId)));
-        setSnackbar('Patient deleted successfully', 'success');
+        setSnackbar('Paciente deletado com sucesso', 'success');
       } catch (error) {
         console.error('Error deleting patient:', error);
-        setSnackbar('Error deleting patient', 'error');
+        setSnackbar('Erro ao excluir paciente', 'error');
       } finally {
         handleClose();
       }
@@ -115,15 +115,15 @@ const PatientList: React.FC = () => {
                 <TableCell>{patient.address.state}</TableCell>
                 <TableCell>{patient.address.city}</TableCell>
                 <TableCell>
-                  <Button variant="contained" color="info" onClick={() => handleDetailsClick(patient.id ?? '')}>
+                  <IconButton  title='Detalhes' color="info" onClick={() => handleDetailsClick(patient.id ?? '')}>
                     <VisibilityIcon />
-                  </Button>
-                  <Button variant="contained" color="primary" onClick={() => handleEditClick(patient.id ?? '')}>
+                  </IconButton>
+                  <IconButton title='Editar' color="primary" onClick={() => handleEditClick(patient.id ?? '')}>
                     <EditIcon />
-                  </Button>
-                  <Button variant="contained" color="error" onClick={() => handleDeleteClick(patient.id ?? '')}>
+                  </IconButton>
+                  <IconButton title='Excluir' color="error" onClick={() => handleDeleteClick(patient.id ?? '')}>
                     <DeleteIcon />
-                  </Button>
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
