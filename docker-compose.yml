@@ -3,14 +3,14 @@ services:
     build: ./backend
     ports:
       - "5000:5000"
-    environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/patientdb
+    depends_on:
+      - db
 
   frontend:
     build: ./frontend
     ports:
       - "4173:4173"
-  
+
   db:
     image: postgres:13
     environment:

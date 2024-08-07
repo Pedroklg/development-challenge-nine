@@ -42,7 +42,7 @@ export function validateInput(
     case 'email':
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) {
-        setEmailError('Invalid email format');
+        setEmailError('Formato de email inválido');
         return;
       }
       setEmailError(null);
@@ -51,7 +51,7 @@ export function validateInput(
     case 'name':
       const nameRegex = /^[a-zA-Z\s]+$/;
       if (!nameRegex.test(value)) {
-        setNameError('Invalid name format');
+        setNameError('Nome inválido');
         return;
       }
       setNameError(null);
