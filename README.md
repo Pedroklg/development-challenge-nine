@@ -46,4 +46,4 @@ To remove volumes as well:
 
 ## Without docker and docker compose
 
- You can run each aplication separately without docker, for this, adjust the .env file on the \backend for your postgres db url, start the db, for `\frontend`,first install dependencies with `npm install`, build the project with `npm run build` and then run it with `npm run preview`, for `\backend` first install dependencies with `npm install`, and then start the application with `npm start`
+ You can run each aplication separately without docker, for this, create a .env file on the \backend for your postgres db url, start the db, for `\frontend`,first install dependencies with `npm install`, build the project with `npm run build` and then run it with `npm run preview`, for `\backend` first install dependencies with `npm install`, and then start the application with `npm start`
