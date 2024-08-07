@@ -19,7 +19,7 @@ export function validateInput(
           return;
         }
         setCepError(null);
-        if (!fetchAddressByCep(value, setFormPatient)){
+        if (!fetchAddressByCep(value, setFormPatient)) {
           setCepError('CEP não encontrado');
         }
 
@@ -27,14 +27,21 @@ export function validateInput(
       break;
 
     case 'birth_date':
-      if (value.length >= 10) {
-        const date = new Date(value);
-        const today = new Date();
+      if (value.length < 10) {
+        return;
+      }
 
-        if (date > today) {
-          setDataError('Data de nascimento inválida');
-          return;
-        }
+      const date = new Date(value);
+      const today = new Date();
+
+      if (date > today) {
+        setDataError('Acredito que o paciente não nasceu no futuro!');
+        return;
+      }
+
+      if (date.getFullYear() < 1850) {
+        setDataError('Acredito que o pacinete não tenha nascido antes de 1850!')
+        return;
       }
       setDataError(null);
       break;
