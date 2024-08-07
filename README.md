@@ -6,7 +6,6 @@ This project is a full-stack web application with a Vite-based frontend using Re
 
 - Docker: [Install Docker](https://docs.docker.com/get-docker/)
 - Docker Compose: [Install Docker Compose](https://docs.docker.com/compose/install/)
-  (You can run each aplication, for this, adjust the .env file on the \backend for your postgres db url, start the db, build the `\frontend`,first install dependencies with `npm install`, build the project with `npm run build` and then run it with `npm run preview`, on `\backend` first install dependencies with `npm install`, and then start the application with `npm start`)
 
 ## Getting Started
 
@@ -44,3 +43,7 @@ To stop the Docker containers, run:
 To remove volumes as well:
 
 `docker-compose down -v`
+
+## Without docker and docker compose
+
+ You can run each aplication separately without docker, for this, adjust the .env file on the \backend for your postgres db url, start the db, for `\frontend`,first install dependencies with `npm install`, build the project with `npm run build` and then run it with `npm run preview`, for `\backend` first install dependencies with `npm install`, and then start the application with `npm start`
