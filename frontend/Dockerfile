@@ -8,7 +8,7 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
+RUN npx tsc -b && npm run build
 
 EXPOSE 4173
 
