@@ -6,6 +6,7 @@ This project is a full-stack web application with a Vite-based frontend using Re
 
 - Docker: [Install Docker](https://docs.docker.com/get-docker/)
 - Docker Compose: [Install Docker Compose](https://docs.docker.com/compose/install/)
+  (You can run each aplication, for this, adjust the .env file on the \backend for your postgres db url, start the db, build the `\frontend` project with `npm run build` and then run it with `npm run preview`, and start the `\backend` with npm start)
 
 ## Getting Started
 
