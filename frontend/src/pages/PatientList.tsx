@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Button, 
-  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Patient from '../types/patientsTypes';
 import { useSnackbar } from '../context/SnackbarContext';
@@ -9,6 +8,7 @@ import { useMediaQuery, useTheme } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PatientDialog from '../components/PatientDialog';
 
 const PatientList: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -30,8 +30,6 @@ const PatientList: React.FC = () => {
             const response = await axios.get(`http://localhost:5000/patients?limit=${rowsPerPage}&offset=${page * rowsPerPage}`);
             setPatients(response.data.patients);
             setTotalPatients(response.data.total);
-            console.log(response.data.patients);
-            console.log(response.data.total);
         } catch (error) {
             console.error('Error fetching patients:', error);
             setSnackbar('Error fetching patients', 'error');
@@ -142,35 +140,13 @@ const PatientList: React.FC = () => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
 
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-        <DialogTitle>
-          {dialogType === 'details' ? 'Patient Details' : 'Confirm Deletion'}
-        </DialogTitle>
-        <DialogContent>
-          {dialogType === 'details' && selectedPatient ? (
-            <DialogContentText>
-              <strong>ID:</strong> {selectedPatient.id}<br />
-              <strong>Nome:</strong> {selectedPatient.name}<br />
-              <strong>Data de Nascimento:</strong> {new Date(selectedPatient.birth_date).toLocaleDateString()}<br />
-              <strong>Email:</strong> {selectedPatient.email}<br />
-              <strong>Estado:</strong> {selectedPatient.address.state}<br />
-              <strong>Cidade:</strong> {selectedPatient.address.city}<br />
-              <strong>Bairro:</strong> {selectedPatient.address.district}<br />
-              <strong>Rua:</strong> {selectedPatient.address.street}<br />
-              <strong>Número:</strong> {selectedPatient.address.number}<br />
-              <strong>Complemento:</strong> {selectedPatient.address.complement ?? 'N/A'}
-            </DialogContentText>
-          ) : (
-            <DialogContentText>Tem certeza que quer deletar este paciente?</DialogContentText>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">Cancelar</Button>
-          {dialogType === 'delete' && (
-            <Button onClick={handleConfirmDelete} color="secondary">Deletar</Button>
-          )}
-        </DialogActions>
-      </Dialog>
+      <PatientDialog
+        open={open}
+        onClose={handleClose}
+        dialogType={dialogType}
+        selectedPatient={selectedPatient}
+        onConfirmDelete={handleConfirmDelete}
+      />
     </div>
   );
 };
