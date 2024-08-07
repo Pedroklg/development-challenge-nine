@@ -12,14 +12,14 @@ This project is a full-stack web application with a Vite-based frontend using Re
 
 ### Clone the Repository
 
-git clone https://github.com/Pedroklg/development-challenge-nine.git
+`git clone https://github.com/Pedroklg/development-challenge-nine.git`
 
-cd development-challenge-nine
+`cd development-challenge-nine`
 
 ### Build and Run with Docker Compose
 To build and run the application using Docker Compose, execute the following command in the root of the project:
 
-docker-compose up --build
+`docker-compose up --build`
 
 ### This will build and start the following services:
 
