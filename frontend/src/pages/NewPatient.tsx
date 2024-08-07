@@ -5,7 +5,7 @@ const NewPatient: React.FC = () => {
 
     return (
         <>
-            <h1 className="text-2xl font-bold">Criar Paciente</h1>
+            <h1 className="text-2xl font-bold pl-3 pt-3">Criar Paciente</h1>
             <PatientForm edit={ false }
             />
         </>
