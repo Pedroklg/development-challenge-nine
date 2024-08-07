@@ -1,6 +1,6 @@
 # Development Challenge Nine
 
-This project is a full-stack web application with a Vite-based frontend using React, Material UI, and TypeScript, and an Express-based backend with Node.js. The application is containerized using Docker and Docker Compose.
+This project is a full-stack web application with a Vite-based frontend using React, Material UI, and TypeScript, and an Express-based backend with Node.js,and postgreSQL. The application is containerized using Docker and Docker Compose.
 
 ## Prerequisites
 
