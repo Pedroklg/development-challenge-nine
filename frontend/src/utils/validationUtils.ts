@@ -12,7 +12,6 @@ export function validateInput(
 ) {
   switch (name) {
     case 'cep':
-      if (value.length >= 8) {
         const cepRegex = /^\d{8}$/;
         if (!cepRegex.test(value)) {
           setCepError('O CEP deve conter exatamente 8 números.');
@@ -22,8 +21,6 @@ export function validateInput(
         if (!fetchAddressByCep(value, setFormPatient)) {
           setCepError('CEP não encontrado');
         }
-
-      }
       break;
 
     case 'birth_date':
@@ -35,12 +32,12 @@ export function validateInput(
       const today = new Date();
 
       if (date > today) {
-        setDataError('Acredito que o paciente não nasceu no futuro!');
+        setDataError('Data de nascimento não pode ser no futuro!');
         return;
       }
 
       if (date.getFullYear() < 1850) {
-        setDataError('Acredito que o pacinete não tenha nascido antes de 1850!')
+        setDataError('Data de nascimento não pode ser antes de 1850!')
         return;
       }
       setDataError(null);
