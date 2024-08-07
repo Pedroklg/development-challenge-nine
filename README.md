@@ -15,13 +15,6 @@ git clone https://github.com/Pedroklg/development-challenge-nine.git
 
 cd development-challenge-nine
 
-
-### Environment Variables
-Ensure you have a .env file in the backend directory with the following content:
-
-
-DATABASE_URL=postgresql://user:password@db:5432/patientdb
-
 ### Build and Run with Docker Compose
 To build and run the application using Docker Compose, execute the following command in the root of the project:
 
