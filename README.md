@@ -6,7 +6,7 @@ This project is a full-stack web application with a Vite-based frontend using Re
 
 - Docker: [Install Docker](https://docs.docker.com/get-docker/)
 - Docker Compose: [Install Docker Compose](https://docs.docker.com/compose/install/)
-  (You can run each aplication, for this, adjust the .env file on the \backend for your postgres db url, start the db, build the `\frontend` project with `npm run build` and then run it with `npm run preview`, and start the `\backend` with npm start)
+  (You can run each aplication, for this, adjust the .env file on the \backend for your postgres db url, start the db, build the `\frontend`,first install dependencies with `npm install`, build the project with `npm run build` and then run it with `npm run preview`, on `\backend` first install dependencies with `npm install`, and then start the application with `npm start`)
 
 ## Getting Started
 
@@ -35,3 +35,12 @@ db: The PostgreSQL database server running on port 5432
 Frontend: Open your browser and go to http://localhost:4173
 
 Backend: The API is accessible at http://localhost:5000
+
+### Stopping the Application
+To stop the Docker containers, run:
+
+`docker-compose down`
+
+To remove volumes as well:
+
+`docker-compose down -v`
