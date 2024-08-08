@@ -221,7 +221,7 @@ const PatientForm: React.FC<{ edit: boolean }> = ({ edit }) => {
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
                         <TextField
-                            label="CEP"
+                            label="CEP(apenas números)"
                             name="cep"
                             value={formPatient?.address?.cep || ''}
                             onChange={handleChange}
