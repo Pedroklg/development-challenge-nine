@@ -34,20 +34,31 @@ export const getPatientsSamples = async (req, res) => {
 export const getPatients = async (req, res) => {
     const limit = parseInt(req.query.limit) || null;
     const offset = parseInt(req.query.offset) || 0;
+    const query = req.query.query || null;
+    
+    const searchTerm = query ? `%${query}%` : '%';
 
     try {
-        const totalResult = await db.query('SELECT COUNT(*) FROM patients');
+        const countQuery = `
+            SELECT COUNT(*) 
+            FROM patients p
+            LEFT JOIN addresses a ON p.address_id = a.id
+            WHERE p.id::text ILIKE $1 OR p.name ILIKE $1 OR p.email ILIKE $1
+        `;
+        const totalResult = await db.query(countQuery, [searchTerm]);
         const total = parseInt(totalResult.rows[0].count);
 
-        const { rows } = await db.query(`
+        const fetchQuery = `
             SELECT p.id, p.name, p.birth_date, p.email, 
                    a.cep, a.state, a.city, a.district, 
                    a.street, a.number, a.complement
             FROM patients p
             LEFT JOIN addresses a ON p.address_id = a.id
-            OFFSET $1
-            LIMIT $2
-        `, [offset, limit]);
+            WHERE p.id::text ILIKE $1 OR p.name ILIKE $1 OR p.email ILIKE $1
+            OFFSET $2
+            LIMIT $3
+        `;
+        const { rows } = await db.query(fetchQuery, [searchTerm, offset, limit]);
 
         const patients = rows.map(row => ({
             id: row.id,
